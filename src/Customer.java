@@ -11,10 +11,14 @@ public class Customer {
     private final String password;
     private String address;
     private int age;
-    public List<Flight> flightsRegisteredByUser;
-    public List<Integer> numOfTicketsBookedByUser;
-    public static final List<Customer> customerCollection = User.getCustomersCollection();
+    DisplayInFormation Display_Information_for_Customer;////dip  : depends on abstraction
 
+    private static final List<Customer> customerCollection = new ArrayList<>();
+    public static List<Customer> getCustomerCollection() {
+        return Collections.unmodifiableList(customerCollection);
+    }
+
+    Scanner read = new Scanner(System.in);
     // ************************************************************
     // Behaviours/Methods
     // ************************************************************
@@ -50,8 +54,7 @@ public class Customer {
         this.phone = phone;
         this.address = address;
         this.age = age;
-        this.flightsRegisteredByUser = new ArrayList<>();
-        this.numOfTicketsBookedByUser = new ArrayList<>();
+
     }
 
     /**
@@ -61,28 +64,68 @@ public class Customer {
      * already registered, program will ask the user
      * to enter new email address to get himself register.
      */
-    public void addNewCustomer() {
+
+    private void displayRegistrationBanner() {
         System.out.printf("\n\n\n%60s ++++++++++++++ Welcome to the Customer Registration Portal ++++++++++++++", "");
-        Scanner read = new Scanner(System.in);
+    }
+
+
+
+    public String input_name()
+    {
+
         System.out.print("\nEnter your name :\t");
         String name = read.nextLine();
+        return name;
+
+    }
+
+
+    public String input_email()
+    {
         System.out.print("Enter your email address :\t");
         String email = read.nextLine();
-        while (isUniqueData(email)) {
+        while (isEmailDuplicate(email)) {
             System.out.println(
                     "ERROR!!! User with the same email already exists... Use new email or login using the previous credentials....");
             System.out.print("Enter your email address :\t");
             email = read.nextLine();
         }
+        return email;
+    }
+
+
+
+    public String  input_password()
+    {
         System.out.print("Enter your Password :\t");
         String password = read.nextLine();
+        return password;
+    }
+    public String input_Phone_number()
+    {
         System.out.print("Enter your Phone number :\t");
         String phone = read.nextLine();
+        return phone;
+    }
+
+    public String input_address()
+    {
         System.out.print("Enter your address :\t");
         String address = read.nextLine();
+        return address;
+    }
+
+    public int input_age()
+    {
         System.out.print("Enter your age :\t");
         int age = read.nextInt();
-        customerCollection.add(new Customer(name, email, password, phone, address, age));
+        return age;
+    }
+
+    public void addNewCustomer() {
+        displayRegistrationBanner();
+        customerCollection.add(new Customer(input_name(), input_email(), input_password(), input_Phone_number(), input_address(), input_age()));
     }
 
     /**
@@ -93,9 +136,9 @@ public class Customer {
      * @param i for serial numbers.
      * @return customers data in String
      */
-    private String toString(int i) {
+    String toString(int i) {
         return String.format("%10s| %-10d | %-10s | %-32s | %-7s | %-27s | %-35s | %-23s |", "", i,
-                randomIDDisplay(userID), name, age, email, address, phone);
+                Add_Space_between_user_id(userID), name, age, email, address, phone);
     }
 
     /**
@@ -104,25 +147,46 @@ public class Customer {
      *
      * @param ID of the searching/required customer
      */
-    public void searchUser(String ID) {
-        boolean isFound = false;
-        Customer customerWithTheID = customerCollection.get(0);
+
+
+    private Customer findCustomerById(String ID) {
         for (Customer c : customerCollection) {
             if (ID.equals(c.getUserID())) {
-                System.out.printf("%-50sCustomer Found...!!!Here is the Full Record...!!!\n\n\n", " ");
-                displayHeader();
-                isFound = true;
-                customerWithTheID = c;
-                break;
+                return c;
             }
         }
-        if (isFound) {
-            System.out.println(customerWithTheID.toString(1));
-            System.out.printf(
-                    "%10s+------------+------------+----------------------------------+---------+-----------------------------+-------------------------------------+-------------------------+\n",
-                    "");
+        return null;
+    }
+
+    private void displayCustomerFoundBanner() {
+        System.out.printf("%-50sCustomer Found...!!! Here is the Full Record...!!!\n\n\n", " ");
+    }
+
+    private void displayCustomerNotFoundMessage(String ID) {
+        System.out.printf("%-50sNo Customer with the ID %s Found...!!!\n", " ", ID);
+    }
+
+    private void displayCustomerData(Customer customer, int index) {
+        System.out.println(customer.toString(index));
+    }
+
+    private void displayFooter() {
+        System.out.printf(
+                "%10s+------------+------------+----------------------------------+---------+-----------------------------+-------------------------------------+-------------------------+\n",
+                "");
+    }
+
+
+
+    public void searchUser(String ID) {
+        Customer customer = findCustomerById(ID);
+        if (customer != null) {
+            displayCustomerFoundBanner();
+            displayHeader();
+            displayCustomerData(customer, 1);
+            displayFooter();
         } else {
-            System.out.printf("%-50sNo Customer with the ID %s Found...!!!\n", " ", ID);
+            displayCustomerNotFoundMessage(ID);
         }
     }
 
@@ -131,7 +195,7 @@ public class Customer {
      *
      * @param emailID to be checked in the list
      */
-    public boolean isUniqueData(String emailID) {
+    public boolean isEmailDuplicate(String emailID) {
         boolean isUnique = false;
         for (Customer c : customerCollection) {
             if (emailID.equals(c.getEmail())) {
@@ -143,54 +207,44 @@ public class Customer {
     }
 
     public void editUserInfo(String ID) {
-        boolean isFound = false;
-        Scanner read = new Scanner(System.in);
-        for (Customer c : customerCollection) {
-            if (ID.equals(c.getUserID())) {
-                isFound = true;
-                System.out.print("\nEnter the new name of the Passenger:\t");
-                String name = read.nextLine();
-                c.setName(name);
-                System.out.print("Enter the new email address of Passenger " + name + ":\t");
-                c.setEmail(read.nextLine());
-                System.out.print("Enter the new Phone number of Passenger " + name + ":\t");
-                c.setPhone(read.nextLine());
-                System.out.print("Enter the new address of Passenger " + name + ":\t");
-                c.setAddress(read.nextLine());
-                System.out.print("Enter the new age of Passenger " + name + ":\t");
-                c.setAge(read.nextInt());
-                displayCustomersData(false);
-                break;
-            }
-        }
-        if (!isFound) {
-            System.out.printf("%-50sNo Customer with the ID %s Found...!!!\n", " ", ID);
+        Customer c = findCustomerById(ID);
+
+        if (c != null) {
+            System.out.print("\nEnter the new name of the Passenger:\t");
+            String newName = input_name();
+            c.setName(newName);
+
+            c.setEmail(input_email());
+            c.setPhone(input_Phone_number());
+            c.setAddress(input_address());
+            c.setAge(input_age());
+
+            displayCustomersData(false);
+        } else {
+            displayCustomerNotFoundMessage(ID);
         }
     }
 
+
     public void deleteUser(String ID) {
-        boolean isFound = false;
-        Iterator<Customer> iterator = customerCollection.iterator();
-        while (iterator.hasNext()) {
-            Customer customer = iterator.next();
-            if (ID.equals(customer.getUserID())) {
-                isFound = true;
-                break;
-            }
-        }
-        if (isFound) {
-            iterator.remove();
-            System.out.printf("\n%-50sPrinting all  Customer's Data after deleting Customer with the ID %s.....!!!!\n",
-                    "", ID);
+        Customer customer = findCustomerById(ID);
+
+        if (customer != null) {
+            customerCollection.remove(customer);
+            displayCustomerDeletedBanner(ID);
             displayCustomersData(false);
         } else {
-            System.out.printf("%-50sNo Customer with the ID %s Found...!!!\n", " ", ID);
+            displayCustomerNotFoundMessage(ID);
         }
+    }
+
+    private void displayCustomerDeletedBanner(String ID) {
+        System.out.printf("\n%-50sPrinting all Customer's Data after deleting Customer with the ID %s.....!!!!\n", "", ID);
     }
 
     /**
      * Shows the customers' data in formatted way.
-     * 
+     *
      * @param showHeader to check if we want to print ascii art for the customers'
      *                   data.
      */
@@ -236,7 +290,7 @@ public class Customer {
      * @param randomID id to add space
      * @return randomID with added space
      */
-    String randomIDDisplay(String randomID) {
+    String Add_Space_between_user_id(String randomID) {//////////////////////rename as method name and it's working behaviour  is not making cohesion
         StringBuilder newString = new StringBuilder();
         for (int i = 0; i <= randomID.length(); i++) {
             if (i == 3) {
@@ -248,33 +302,13 @@ public class Customer {
         return newString.toString();
     }
 
-    /**
-     * Associates a new flight with the specified customer
-     *
-     * @param f flight to associate
-     */
-    void addNewFlightToCustomerList(Flight f) {
-        this.flightsRegisteredByUser.add(f);
-        // numOfFlights++;
-    }
 
-    /**
-     * Adds numOfTickets to already booked flights
-     * 
-     * @param index        at which flight is registered in the arraylist
-     * @param numOfTickets how many tickets to add
-     */
-    void addExistingFlightToCustomerList(int index, int numOfTickets) {
-        int newNumOfTickets = numOfTicketsBookedByUser.get(index) + numOfTickets;
-        this.numOfTicketsBookedByUser.set(index, newNumOfTickets);
-    }
+
 
     // ************************************************************ Setters &
     // Getters ************************************************************
 
-    public List<Flight> getFlightsRegisteredByUser() {
-        return flightsRegisteredByUser;
-    }
+
 
     public String getPassword() {
         return password;
@@ -304,9 +338,7 @@ public class Customer {
         return name;
     }
 
-    public List<Integer> getNumOfTicketsBookedByUser() {
-        return numOfTicketsBookedByUser;
-    }
+
 
     public void setName(String name) {
         this.name = name;
@@ -327,4 +359,7 @@ public class Customer {
     public void setAge(int age) {
         this.age = age;
     }
+
+
+
 }

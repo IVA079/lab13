@@ -22,6 +22,30 @@ public class Flight extends FlightDistance {
     private int customerIndex;
     private static int nextFlightDay = 0;
     private static final List<Flight> flightList = new ArrayList<>();
+    public List<Flight> flightsRegisteredByUser;
+    public List<Integer> numOfTicketsBookedByUser;
+
+    /**
+     * Adds numOfTickets to already booked flights
+     *
+     * @param index        at which flight is registered in the arraylist
+     * @param numOfTickets how many tickets to add
+     */
+
+    /**
+     * Associates a new flight with the specified customer
+     *
+     * @param f flight to associate
+     */
+
+    void addNewFlightToCustomerList(Flight f) {
+        this.flightsRegisteredByUser.add(f);
+        // numOfFlights++;
+    }
+    void addExistingFlightToCustomerList(int index, int numOfTickets) {
+        int newNumOfTickets = numOfTicketsBookedByUser.get(index) + numOfTickets;
+        this.numOfTicketsBookedByUser.set(index, newNumOfTickets);
+    }
 
     //        ************************************************************ Behaviours/Methods ************************************************************
 
@@ -321,6 +345,15 @@ public class Flight extends FlightDistance {
 
     public String getToWhichCity() {
         return toWhichCity;
+    }
+
+    public List<Flight> getFlightsRegisteredByUser() {
+        return flightsRegisteredByUser;
+    }
+
+
+    public List<Integer> getNumOfTicketsBookedByUser() {
+        return numOfTicketsBookedByUser;
     }
 
 }
