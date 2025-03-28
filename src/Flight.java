@@ -22,30 +22,11 @@ public class Flight extends FlightDistance {
     private int customerIndex;
     private static int nextFlightDay = 0;
     private static final List<Flight> flightList = new ArrayList<>();
-    public List<Flight> flightsRegisteredByUser;
-    public List<Integer> numOfTicketsBookedByUser;
-
-    /**
-     * Adds numOfTickets to already booked flights
-     *
-     * @param index        at which flight is registered in the arraylist
-     * @param numOfTickets how many tickets to add
-     */
-
-    /**
-     * Associates a new flight with the specified customer
-     *
-     * @param f flight to associate
-     */
-
-    void addNewFlightToCustomerList(Flight f) {
-        this.flightsRegisteredByUser.add(f);
-        // numOfFlights++;
-    }
-    void addExistingFlightToCustomerList(int index, int numOfTickets) {
-        int newNumOfTickets = numOfTicketsBookedByUser.get(index) + numOfTickets;
-        this.numOfTicketsBookedByUser.set(index, newNumOfTickets);
-    }
+public static final  int numeber_of_unique_flights =15;
+    private static final int FLIGHT_CODE_LETTERS = 2;
+    private static final int FLIGHT_CODE_DIGITS = 1;
+    private static final int GATE_CODE_LETTERS = 1;
+    private static final int GATE_CODE_DIGITS = 30;
 
     //        ************************************************************ Behaviours/Methods ************************************************************
 
@@ -85,45 +66,51 @@ public class Flight extends FlightDistance {
      * Creates Flight Schedule. All methods of this class are collaborating with each other
      * to create flight schedule of the said length in this method.
      */
-    public void flightScheduler() {
-        int numOfFlights = 15;              // decides how many unique flights to be included/display in scheduler
-        RandomGenerator r1 = new RandomGenerator();
-        for (int i = 0; i < numOfFlights; i++) {
-            String[][] chosenDestinations = r1.randomDestinations();
-            String[] distanceBetweenTheCities = calculateDistance(Double.parseDouble(chosenDestinations[0][1]), Double.parseDouble(chosenDestinations[0][2]), Double.parseDouble(chosenDestinations[1][1]), Double.parseDouble(chosenDestinations[1][2]));
-            String flightSchedule = createNewFlightsAndTime();
-            String flightNumber = r1.randomFlightNumbGen(2, 1).toUpperCase();
-            int numOfSeatsInTheFlight = r1.randomNumOfSeats();
-            String gate = r1.randomFlightNumbGen(1, 30);
-            flightList.add(new Flight(flightSchedule, flightNumber, numOfSeatsInTheFlight, chosenDestinations, distanceBetweenTheCities, gate.toUpperCase()));
+
+
+    public void addFlights() {
+        RandomGenerator randomGenerator = new RandomGenerator();
+
+        for (int i = 0; i < numeber_of_unique_flights; i++) {
+            Flight newFlight = createRandomFlight(randomGenerator);
+            flightList.add(newFlight);
         }
     }
 
-    /**
-     * Registers new Customer in this Flight.
-     *
-     * @param customer customer to be registered
-     */
+    private Flight createRandomFlight(RandomGenerator randomGenerator) {
+        String[][] cities = randomGenerator.randomDestinations();
+
+        String[] distance = calculateDistance(
+                Double.parseDouble(cities[0][1]),
+                Double.parseDouble(cities[0][2]),
+                Double.parseDouble(cities[1][1]),
+                Double.parseDouble(cities[1][2])
+        );
+
+        String schedule = createNewFlightsAndTime();
+
+        String number = randomGenerator.randomFlightNumbGen(2, 1).toUpperCase();
+
+        int seats = randomGenerator.randomNumOfSeats();
+
+        String gate = randomGenerator.randomFlightNumbGen(1, 30).toUpperCase();
+
+        return new Flight(schedule, number, seats, cities, distance, gate);
+    }
+
+
+
     void addNewCustomerToFlight(Customer customer) {
+
         this.listOfRegisteredCustomersInAFlight.add(customer);
     }
 
-    /**
-     * Adds numOfTickets to existing customer's tickets for the this flight.
-     *
-     * @param customer     customer in which tickets are to be added
-     * @param numOfTickets number of tickets to add
-     */
+
     void addTicketsToExistingCustomer(Customer customer, int numOfTickets) {
         customer.addExistingFlightToCustomerList(customerIndex, numOfTickets);
     }
 
-    /***
-     * Checks if the specified customer is already registered in the FLight's array list
-     * @param customersList of the flight
-     * @param customer specified customer to be checked
-     * @return true if the customer is already registered in the said flight, false otherwise
-     */
+
     boolean isCustomerAlreadyAdded(List<Customer> customersList, Customer customer) {
         boolean isAdded = false;
         for (Customer customer1 : customersList) {
@@ -142,14 +129,26 @@ public class Flight extends FlightDistance {
      * @param distanceBetweenTheCities distance between the cities/airports in miles
      * @return formatted flight time
      */
+    public static final double ground_speed=450;
+
+    public static final int Round_Minute_to_nearest_multiple_of_five = 5;
+    public static final int ROUNDING_Limit_to_decide_whether_roundUp_or_roundDown = 3;
+    public static final int MAX_MINUTES = 60;
+
     public String calculateFlightTime(double distanceBetweenTheCities) {
-        double groundSpeed = 450;
-        double time = (distanceBetweenTheCities / groundSpeed);
+
+        double time = (distanceBetweenTheCities / ground_speed);
+
         String timeInString = String.format("%.4s", time);
+
         String[] timeArray = timeInString.replace('.', ':').split(":");
+
+        //////rounding
         int hours = Integer.parseInt(timeArray[0]);
         int minutes = Integer.parseInt(timeArray[1]);
+
         int modulus = minutes % 5;
+
         // Changing flight time to make minutes near/divisible to 5.
         if (modulus < 3) {
             minutes -= modulus;
@@ -160,6 +159,9 @@ public class Flight extends FlightDistance {
             minutes -= 60;
             hours++;
         }
+
+///// Consolidate Conditional Expressions
+
         if (hours <= 9 && Integer.toString(minutes).length() == 1) {
             return String.format("0%s:%s0", hours, minutes);
         } else if (hours <= 9 && Integer.toString(minutes).length() > 1) {
@@ -170,7 +172,10 @@ public class Flight extends FlightDistance {
             return String.format("%s:%s", hours, minutes);
         }
     }
+public String Conver_raw_time_in_round_time_hour_colon_minute_format(String[]timeArray)
+{
 
+}
     /**
      * Creates flight arrival time by adding flight time to flight departure time
      *
@@ -257,7 +262,7 @@ public class Flight extends FlightDistance {
             i++;
             Flight f1 = flightIterator.next();
             System.out.println(f1.toString(i));
-             System.out.print("+------+-------------------------------------------+-----------+------------------+-----------------------+------------------------+---------------------------+-------------+--------+------------------------+\n");
+            System.out.print("+------+-------------------------------------------+-----------+------------------+-----------------------+------------------------+---------------------------+-------------+--------+------------------------+\n");
         }
     }
 
@@ -305,13 +310,26 @@ public class Flight extends FlightDistance {
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
     //        ************************************************************ Setters & Getters ************************************************************
 
-    public int getNoOfSeats() {
+    public int getNoOfSeats()
+    {
         return numOfSeatsInTheFlight;
     }
 
-    public String getFlightNumber() {
+    public String getFlightNumber()
+    {
         return flightNumber;
     }
 
@@ -347,13 +365,6 @@ public class Flight extends FlightDistance {
         return toWhichCity;
     }
 
-    public List<Flight> getFlightsRegisteredByUser() {
-        return flightsRegisteredByUser;
-    }
 
-
-    public List<Integer> getNumOfTicketsBookedByUser() {
-        return numOfTicketsBookedByUser;
-    }
 
 }

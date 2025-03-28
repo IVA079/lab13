@@ -12,6 +12,8 @@ public class Customer {
     private String address;
     private int age;
     DisplayInFormation Display_Information_for_Customer;////dip  : depends on abstraction
+    public List<Flight> flightsRegisteredByUser;
+    public List<Integer> numOfTicketsBookedByUser;
 
     private static final List<Customer> customerCollection = new ArrayList<>();
     public static List<Customer> getCustomerCollection() {
@@ -360,6 +362,28 @@ public class Customer {
         this.age = age;
     }
 
+    void addNewFlightToCustomerList(Flight f) {
+        this.flightsRegisteredByUser.add(f);
+        // numOfFlights++;
+    }
+
+    /**
+     * Adds numOfTickets to already booked flights
+     *
+     * @param index        at which flight is registered in the arraylist
+     * @param numOfTickets how many tickets to add
+     */
+    void addExistingFlightToCustomerList(int index, int numOfTickets) {
+        int newNumOfTickets = numOfTicketsBookedByUser.get(index) + numOfTickets;
+        this.numOfTicketsBookedByUser.set(index, newNumOfTickets);
+    }
+
+    // ************************************************************ Setters &
+    // Getters ************************************************************
+
+    public List<Flight> getFlightsRegisteredByUser() {
+        return flightsRegisteredByUser;
+    }
 
 
 }
